@@ -14,6 +14,7 @@ import type { RootState } from '../redux/store'
 
 import { useSelector, useDispatch } from 'react-redux'
 import { changeName, cleanName } from './../redux/slice/cardSlice'
+import { collectGenerateParams } from "next/dist/build/utils";
 
 
 export default function Page(): JSX.Element {
@@ -21,8 +22,8 @@ export default function Page(): JSX.Element {
   const [showSidebar, setShowSidebar] = useState(false);
   const ref = React.useRef(null);
   const mouse = useMouse(ref, {
-    enterDelay: 100,
-    leaveDelay: 100,
+    enterDelay: 800,
+    leaveDelay: 800,
   });
   const onlyWidth = useWindowWidth()
 
@@ -42,40 +43,20 @@ export default function Page(): JSX.Element {
   }, [])
   useEffect(() => {
     if (
-      !showSidebar &&
       mouse.screenX &&
-      mouse.screenX >= onlyWidth - onlyWidth * 0.02
+      mouse.screenX >= onlyWidth - (onlyWidth * 0.3)
     ) {
       setShowSidebar(true)
     }
     else {
-      if(showSidebar && 
+      if(
         mouse.screenX &&
         mouse.screenX < onlyWidth - onlyWidth * 0.18
       ) {
         setShowSidebar(false)
-        setShowSidebar(false)
       }
     }
   }, [mouse])
-  // useEffect(() => {
-  //   console.log("Holas desde Effect")
-  //   getCard()
-  //     .then(data => {
-  //       console.log('Then funciono')
-  //       console.log(data)
-  //       return data
-  //     })
-  //     .catch(e => {
-  //       console.log('Catch algo fallo')
-  //       console.log(e)
-  //     })
-  
-  // }, []);
-
-  useEffect(()=>{
-    console.log(name);
-  }, [name])
 
   return (
     <>
