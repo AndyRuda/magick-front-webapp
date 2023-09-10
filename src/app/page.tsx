@@ -1,95 +1,97 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client"
+import React, { useEffect, useState } from "react";
+import { Container, Row, Col } from 'react-bootstrap';
+import useMouse from '@react-hook/mouse-position'
+import { useRouter } from 'next/navigation';
+import { getUserData } from './../services/User';
+import { getCard } from './../services/Cards';
+import Navbar from './../components/navbar';
+import Sidebar from './../components/sidebar';
+import Table from './../components/table';
+import { useWindowWidth } from '@react-hook/window-size'
 
-export default function Home() {
+import type { RootState } from '../redux/store'
+
+import { useSelector, useDispatch } from 'react-redux'
+import { changeName, cleanName } from './../redux/slice/cardSlice'
+
+
+export default function Page(): JSX.Element {
+  const router = useRouter();
+  const [showSidebar, setShowSidebar] = useState(false);
+  const ref = React.useRef(null);
+  const mouse = useMouse(ref, {
+    enterDelay: 100,
+    leaveDelay: 100,
+  });
+  const onlyWidth = useWindowWidth()
+
+  const name = useSelector( (state: RootState) => state.card.name)
+
+  useEffect(() => {
+    try {
+      getUserData().then(data => {
+        console.log(data)
+        return data
+      })
+
+    } catch (error) {
+      console.log(error)
+      router.push('/login')
+    }
+  }, [])
+  useEffect(() => {
+    if (
+      !showSidebar &&
+      mouse.screenX &&
+      mouse.screenX >= onlyWidth - onlyWidth * 0.02
+    ) {
+      setShowSidebar(true)
+    }
+    else {
+      if(showSidebar && 
+        mouse.screenX &&
+        mouse.screenX < onlyWidth - onlyWidth * 0.18
+      ) {
+        setShowSidebar(false)
+        setShowSidebar(false)
+      }
+    }
+  }, [mouse])
+  // useEffect(() => {
+  //   console.log("Holas desde Effect")
+  //   getCard()
+  //     .then(data => {
+  //       console.log('Then funciono')
+  //       console.log(data)
+  //       return data
+  //     })
+  //     .catch(e => {
+  //       console.log('Catch algo fallo')
+  //       console.log(e)
+  //     })
+  
+  // }, []);
+
+  useEffect(()=>{
+    console.log(name);
+  }, [name])
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+    <>
+      <Navbar style={{ height: '10vh' }}></Navbar>
+      <Container style={{ height: '90vh' }} fluid ref={ref}>
+        <Row>
+          <Col xs={showSidebar ? 10 : 12} className={showSidebar ? "pe-0" : ""} >
+            <Table></Table>
+          </Col>
+          {showSidebar && (
+            <Col xs={showSidebar ? 2 : 0} className="px-0">
+              <Sidebar></Sidebar>
+            </Col>
+          )}
+        </Row>
+      </Container>
+    </>
   )
 }
